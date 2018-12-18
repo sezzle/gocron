@@ -16,6 +16,12 @@ func taskWithParams(a int, b string) {
 	fmt.Println(a, b)
 }
 
+func taskWihtDelay(a time.Duration, b, c string) {
+	fmt.Println(b)
+	time.Sleep(a)
+	fmt.Println(c)
+}
+
 func TestSecond(*testing.T) {
 	defaultScheduler.Every(1).Second().Do(task)
 	defaultScheduler.Every(1).Second().Do(taskWithParams, 1, "hello")
@@ -146,16 +152,38 @@ func Test_formatTime(t *testing.T) {
 	}
 }
 
+func Test_RescheduleWithoutCreep(t *testing.T) {
+	diffDuration := 10 * time.Second
+	newJob := defaultScheduler.Every(1)
+	newJob.Second().Do(taskWihtDelay, diffDuration, "now", "then")
+	time.Sleep(2 * time.Second)
+	now := time.Now()
+	defaultScheduler.RunPending() // this is blocking until completion
+	actualDiff := newJob.lastRun.Sub(now)
+	t.Logf("actual diff: %v", actualDiff.String())
+	if actualDiff >= diffDuration {
+		t.Fail()
+		t.Logf("new job's last run time stamp is more than duration seconds AFTER timestamp before running")
+	}
+}
+
 // utility function for testing the weekday functions *on* the current weekday.
 func callTodaysWeekday(job *Job) *Job {
 	switch time.Now().Weekday() {
-	case 0: job.Sunday()
-	case 1: job.Monday()
-	case 2: job.Tuesday()
-	case 3: job.Wednesday()
-	case 4: job.Thursday()
-	case 5: job.Friday()
-	case 6: job.Saturday()
+	case 0:
+		job.Sunday()
+	case 1:
+		job.Monday()
+	case 2:
+		job.Tuesday()
+	case 3:
+		job.Wednesday()
+	case 4:
+		job.Thursday()
+	case 5:
+		job.Friday()
+	case 6:
+		job.Saturday()
 	}
 	return job
 }

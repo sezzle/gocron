@@ -88,6 +88,7 @@ func (j *Job) shouldRun() bool {
 
 //Run the job and immediately reschedule it
 func (j *Job) run() (result []reflect.Value, err error) {
+	lastRun := time.Now()
 	f := reflect.ValueOf(j.funcs[j.jobFunc])
 	params := j.fparams[j.jobFunc]
 	if len(params) != f.Type().NumIn() {
@@ -99,7 +100,7 @@ func (j *Job) run() (result []reflect.Value, err error) {
 		in[k] = reflect.ValueOf(param)
 	}
 	result = f.Call(in)
-	j.lastRun = time.Now()
+	j.lastRun = lastRun
 	j.scheduleNextRun()
 	return
 }
