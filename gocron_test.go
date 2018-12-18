@@ -16,7 +16,7 @@ func taskWithParams(a int, b string) {
 	fmt.Println(a, b)
 }
 
-func taskWihtDelay(a time.Duration, b, c string) {
+func taskWithDelay(a time.Duration, b, c string) {
 	fmt.Println(b)
 	time.Sleep(a)
 	fmt.Println(c)
@@ -155,7 +155,7 @@ func Test_formatTime(t *testing.T) {
 func Test_RescheduleWithoutCreep(t *testing.T) {
 	diffDuration := 10 * time.Second
 	newJob := defaultScheduler.Every(1)
-	newJob.Second().Do(taskWihtDelay, diffDuration, "now", "then")
+	newJob.Second().Do(taskWithDelay, diffDuration, "now", "then")
 	time.Sleep(2 * time.Second)
 	now := time.Now()
 	defaultScheduler.RunPending() // this is blocking until completion
